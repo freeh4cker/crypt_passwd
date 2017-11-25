@@ -1,0 +1,41 @@
+######################
+# Logs and databases #
+######################
+*\.log
+.DS_Store
+
+####################
+# Eclipse metadata #
+####################
+\.project
+\.pydevproject
+\.settings/
+
+#############
+# vim files #
+#############
+*\.swp
+*~
+\#*\#
+
+####################
+# pycharm metadata #
+####################
+
+.idea/
+
+##########################
+# Python compiled source #
+##########################
+*\.pyc
+*\.pyo
+__pycache__/
+build/
+dist/
+doc/_build/
+*\.egg-info
+
+################################
+# crypt_passwd generated files #
+################################
+MANIFEST
