@@ -1,0 +1,120 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+##########################################################################
+# Copyright (c) 2017 Bertrand Néron. All rights reserved.                #
+# Use of this source code is governed by a BSD-style license that can be #
+# found in the LICENSE file.                                             #
+##########################################################################
+
+import sys
+import getpass
+import argparse
+import passlib.hash
+from passlib import pwd
+
+__version__ = '1.0'
+
+
+def encrypt(password, algo='sha512_crypt'):
+    """
+
+    :param str password: The password to encrypt.
+    :param str algo: The algorithm chosen to encrypt the password.
+    :return: The password encrypted using the algorithm algo.
+    :rtype: string
+    """
+    hasher = getattr(passlib.hash, algo)
+    encrypt_passwd = hasher.hash(password)
+    return encrypt_passwd
+
+
+def verify(password, hash, algo='sha512_crypt'):
+    """
+
+    :param str password: The password to encrypt.
+    :param str hash: The password encrypted using the algorithm algo.
+    :param str algo: The algorithm chosen to encrypt the password.
+    :return: True if the password match with the hash.otherwise False
+    :rtype: boolean
+    """
+    hasher = getattr(passlib.hash, algo)
+    return hasher.verify(password, hash)
+
+def new_password(length=None, entropy='strong', charset='ascii_72'):
+    """
+
+    :param length:
+    :param entropy:
+    :param charset:
+    :return:
+    """
+    return pwd.genword(entropy=entropy, length=length, charset=charset)
+
+
+if __name__ == '__main__':
+    args2algo = {
+        'bcrypt': 'bcrypt',
+        'sha256': 'sha256_crypt',
+        'sha512': 'sha512_crypt',
+        'argon2': 'argon2',
+        'pbkdf2_sha256': 'pbkdf2_sha256',
+        'pbkdf2_sha512': 'pbkdf2_sha512',
+    }
+
+    def get_version_message():
+        version_text = "%(prog)s version: {} \nusing passlib version: {}".format(
+            __version__,
+            passlib.__version__)
+        return version_text
+
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description="""%(prog)s prompt you for a password then display the encrypted version.
+If you do not provides a password, %(prog)s will provide one for you.""")
+    parser.add_argument('--algo',
+                        choices=args2algo,
+                        default='sha512',
+                        help='The algorithm to use to encrypt the password (default: %(default)s)')
+    parser.add_argument('--strength',
+                        choices=['weak', 'fair', 'strong', 'secure'],
+                        default='strong',
+                        help="""Strength of resulting password, measured in ‘guessing entropy’ bits. 
+An appropriate length value will be calculated based on the requested entropy amount, 
+and the size of the character set.
+This option will be used only if no password is provided.
+(default: %(default)s)""")
+    parser.add_argument('--length',
+                        default=8,
+                        type=int,
+                        help="""Size of resulting password, measured in characters.
+If not provided, the size is auto-calculated based on the strength parameter.
+If both strength and length are specified, the stronger value will be used.
+This option will be used only if no password is provided.
+(default: %(default)s)""")
+    parser.add_argument('--version',
+                        action='version',
+                        version=get_version_message())
+
+    args = parser.parse_args()
+
+    if args.algo in args2algo:
+        algo = args2algo[args.algo]
+    else:
+        raise RuntimeError("the hash algorithm; '{}' is not supported".format(args.algo))
+
+    clear_passwd = getpass.getpass(prompt='Enter password (return => will generated a password for you.) : ')
+
+    if clear_passwd:
+        encrypt_passwd = encrypt(clear_passwd, algo=algo)
+        confirm_passwd = getpass.getpass(prompt="Retype new password: ")
+        if verify(confirm_passwd, encrypt_passwd, algo=algo):
+            print(encrypt_passwd)
+        else:
+            print('Sorry, passwords does not match.')
+            sys.exit(10)
+    else:
+        clear_passwd = new_password(entropy=args.strength, length=args.length)
+        encrypt_passwd = encrypt(clear_passwd, algo=algo)
+        print(clear_passwd)
+        print(encrypt_passwd)
