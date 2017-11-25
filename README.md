@@ -11,12 +11,12 @@ Enter password:
 Retype new password: 
 $6$rounds=656000$62S97YpG1zdqvU04$DqdMO9dcfyQfCBk7ne4pkQMn3/8BDx6k.bC1c2owWDF/D8TCMMe9nya5jsGGLZMGeyTaTr5r2TkrnZJQjBsbc0
 ```  
-The password is never display in clear.
+The password is never displayed in clear.
 
 The available algorithms are: 'bcrypt', 'sha256', 'sha512' (default), 'argon2', 
  'pbkdf2_sha256', 'pbkdf2_sha512'
 
-If you do not provide a password *crypt_passwd* will generate one for you.
+If you do not provide a password, *crypt_passwd* will generate one for you.
 In this case you can control either the strength or the length of the password.
  
 ```bash
